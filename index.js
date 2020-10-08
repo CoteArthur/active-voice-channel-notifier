@@ -1,32 +1,52 @@
 const Discord = require('discord.js');
+const config = require('./config.json');
+
 const client = new Discord.Client();
 
+const format = require('date-fns-tz/format');
+const utcToZonedTime = require('date-fns-tz/utcToZonedTime');
+
+let voiceChannel = undefined;
+let textChannel = undefined;
+
 client.once('ready', () => {
-	console.log('Ready!');
+    console.log('Ready!');
+
+    client.channels.fetch('663505721236652046')
+    .then(channel => voiceChannel = channel)
+    .catch(console.error);
+
+    client.channels.fetch('763781261386448986')
+    .then(channel => textChannel = channel)
+    .catch(console.error);
 });
 
+client.on('voiceStateUpdate', (oldState, newState) => {
+    if (!voiceChannel || !textChannel) return console.log('Channels not set properly, this is probably an ID error');
 
-client.on('message', message => {
-	if (message.content === 'a') {
-        const voiceChannel = client.channels.cache.get('663505721236652046');
+    if(oldState.channel === null && newState.channel !== null) {
 
-		if (!voiceChannel) {
-			return message.reply('please join a voice channel first!');
+		if (voiceChannel.members.size >= 2) {
+
+            textChannel.messages.fetch({ limit: 1 })
+            .then(messages => {
+                const lastMessage = messages.first();
+                const currentDate = format(utcToZonedTime(new Date(), 'Europe/Paris'), 'HH:mm dd/MM', { timeZone: 'Europe/Paris' });
+
+                if (!lastMessage)
+                    return textChannel.send(`[${currentDate}] @everyone, ${voiceChannel.name} is currently active`);
+
+                if ( ((+new Date) - lastMessage.createdTimestamp) >= (6000) ) {
+                    lastMessage.delete({ timeout: 0 })
+                    .then(() => textChannel.send(`[${currentDate}] @everyone, ${voiceChannel.name} is currently active`))
+                    .catch(console.error);
+                }
+            })
+            .catch(console.error);
+
         }
-        
-        message.channel.send(`${voiceChannel.members.size}`);
-    }
 
-	if (message.content === '!join') {
-        if (!message.member.voice.channel) {
-            return message.reply('please join a voice channel first!');
-        }
-        message.member.voice.channel.join();
-    }
-
-	if (message.content === '!leave') {
-        message.member.voice.channel.leave();
     }
 });
 
-client.login('NzYzNTA4ODk1NTY5Njc0Mjkx.X34vEg.aMpcatg0x226kM3KqyY6hEKtJ2M');
+client.login(config.token);
