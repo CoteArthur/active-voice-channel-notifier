@@ -26,16 +26,8 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
             textChannel.messages.fetch({ limit: 1 })
             .then(messages => {
-                const lastMessage = messages.first();
-
-                if (!lastMessage)
-                    return textChannel.send(`@everyone, ${voiceChannel.name} is currently active`);
-
-                if ( ((+new Date) - lastMessage.createdTimestamp) >= (6000) ) {
-                    lastMessage.delete({ timeout: 0 })
-                    .then(() => textChannel.send(`@everyone, ${voiceChannel.name} is currently active`))
-                    .catch(console.error);
-                }
+                if (!messages.first())
+                    return textChannel.send(`[@everyone] ${voiceChannel.name} is currently active`);
             })
             .catch(console.error);
 
@@ -57,7 +49,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
             .catch(console.error);
 
         }
-        
+
     }
 });
 
