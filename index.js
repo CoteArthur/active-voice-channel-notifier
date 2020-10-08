@@ -1,10 +1,6 @@
 const Discord = require('discord.js');
 const config = require('./config.json');
-
 const client = new Discord.Client();
-
-const format = require('date-fns-tz/format');
-const utcToZonedTime = require('date-fns-tz/utcToZonedTime');
 
 let voiceChannel = undefined;
 let textChannel = undefined;
@@ -31,14 +27,13 @@ client.on('voiceStateUpdate', (oldState, newState) => {
             textChannel.messages.fetch({ limit: 1 })
             .then(messages => {
                 const lastMessage = messages.first();
-                const currentDate = format(utcToZonedTime(new Date(), 'Europe/Paris'), 'HH:mm dd/MM', { timeZone: 'Europe/Paris' });
 
                 if (!lastMessage)
-                    return textChannel.send(`[${currentDate}] @everyone, ${voiceChannel.name} is currently active`);
+                    return textChannel.send(`@everyone, ${voiceChannel.name} is currently active`);
 
                 if ( ((+new Date) - lastMessage.createdTimestamp) >= (6000) ) {
                     lastMessage.delete({ timeout: 0 })
-                    .then(() => textChannel.send(`[${currentDate}] @everyone, ${voiceChannel.name} is currently active`))
+                    .then(() => textChannel.send(`@everyone, ${voiceChannel.name} is currently active`))
                     .catch(console.error);
                 }
             })
