@@ -42,6 +42,23 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         }
 
     }
+
+    if(oldState.channel !== null && newState.channel === null) {
+
+		if (voiceChannel.members.size < 2) {
+
+            textChannel.messages.fetch({ limit: 1 })
+            .then(messages => {
+                const lastMessage = messages.first();
+
+                if (lastMessage)
+                    lastMessage.delete({ timeout: 0 }).catch(console.error);
+            })
+            .catch(console.error);
+
+        }
+        
+    }
 });
 
 client.login(config.token);
