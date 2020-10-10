@@ -5,34 +5,22 @@ const client = new Discord.Client();
 let voiceChannel = undefined;
 let textChannel = undefined;
 
-//TODO handle permissions of textChannel and handle proper voiceChannel fetching
-
 client.once('ready', () => {
     console.log('Ready!');
 
-    // client.channels.fetch('663505721236652046')
-    // .then(channel => voiceChannel = channel)
-    // .catch(console.error);
-
-    // client.channels.fetch('763781261386448986')
-    // .then(channel => textChannel = channel)
-    // .catch(console.error);
-});
-
-client.on("guildCreate", guild => {
-    guild.channels.create('bot-notifications')
-    .then(channel => {
-        textChannel = channel;
-        textChannel.send('beep boop');
-    })
+    client.channels.fetch('696348112746446851')
+    .then(channel => voiceChannel = channel)
     .catch(console.error);
-})
+
+    client.channels.fetch('764493249745649664')
+    .then(channel => textChannel = channel)
+    .catch(console.error);
+});
 
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (!voiceChannel || !textChannel) return console.log('Channels not set properly');
 
     if(oldState.channel === null && newState.channel !== null) {
-
 		if (voiceChannel.members.size >= 2) {
 
             textChannel.messages.fetch({ limit: 1 })
@@ -43,11 +31,9 @@ client.on('voiceStateUpdate', (oldState, newState) => {
             .catch(console.error);
 
         }
-
     }
 
     if(oldState.channel !== null && newState.channel === null) {
-
 		if (voiceChannel.members.size < 2) {
 
             textChannel.messages.fetch({ limit: 1 })
@@ -60,7 +46,6 @@ client.on('voiceStateUpdate', (oldState, newState) => {
             .catch(console.error);
 
         }
-
     }
 });
 
