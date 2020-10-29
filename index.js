@@ -21,7 +21,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (!voiceChannel || !textChannel) return console.log('Channels not set properly');
 
     if(oldState.channel === null && newState.channel !== null) {
-		if (voiceChannel.members.size > 2) {
+		if (voiceChannel.members.filter(guildMember => !guildMember.user.bot).size >= 2) {
 
             textChannel.messages.fetch({ limit: 1 })
             .then(messages => {
