@@ -3,32 +3,32 @@ const config = require('./config.json');
 const client = new Discord.Client({ partials: ['MESSAGE', 'REACTION'] });
 
 let voiceChannel = undefined;
-let textChannel = undefined;
+let notificationChannel = undefined;
 
-const ytChannelId = '771365575418970112';
+const youtubeFeedId = '771365575418970112';
 
 client.once('ready', () => {
     console.log('Ready!');
 
-    client.channels.fetch('696348112746446851')
+    client.channels.fetch('773977443659808828')
     .then(channel => voiceChannel = channel)
     .catch(console.error);
 
     client.channels.fetch('764493249745649664')
-    .then(channel => textChannel = channel)
+    .then(channel => notificationChannel = channel)
     .catch(console.error);
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-    if (!voiceChannel || !textChannel) return console.log('Channels not set properly');
+    if (!voiceChannel || !notificationChannel) return console.log('Channels not set properly');
 
     if (oldState.channel === null && newState.channel !== null) {
 		if (voiceChannel.members.filter(guildMember => !guildMember.user.bot).size >= 2) {
 
-            textChannel.messages.fetch({ limit: 1 })
+            notificationChannel.messages.fetch({ limit: 1 })
             .then(messages => {
                 if (!messages.first())
-                    return textChannel.send(`[@everyone] ${voiceChannel.name} is currently active`);
+                    return notificationChannel.send(`[@everyone] ${voiceChannel.name} is currently active`);
             })
             .catch(console.error);
 
@@ -38,7 +38,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (oldState.channel !== null && newState.channel === null) {
 		if (voiceChannel.members.size < 2) {
 
-            textChannel.messages.fetch({ limit: 1 })
+            notificationChannel.messages.fetch({ limit: 1 })
             .then(messages => {
                 const lastMessage = messages.first();
 
@@ -52,7 +52,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 });
 
 client.on('message', (message) => {
-    if (message.channel.id === ytChannelId) {
+    if (message.channel.id === youtubeFeedId) {
         if (message.type === 'PINS_ADD') 
             return message.delete();
 
@@ -64,7 +64,7 @@ client.on('message', (message) => {
 });
 
 client.on('messageReactionAdd', (reaction) => {
-    if (reaction.message.channel.id === ytChannelId) {
+    if (reaction.message.channel.id === youtubeFeedId) {
         if (reaction.partial)
             reaction.fetch().catch((error) => {return console.error(error)});
 
@@ -74,7 +74,7 @@ client.on('messageReactionAdd', (reaction) => {
 });
 
 client.on('messageReactionRemove', (reaction) => {
-    if (reaction.message.channel.id === ytChannelId) {
+    if (reaction.message.channel.id === youtubeFeedId) {
         if (reaction.partial)
             reaction.fetch().catch((error) => {return console.error(error)});
 
